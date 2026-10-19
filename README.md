@@ -120,3 +120,7 @@ Everything under `.git/` stays on your machine and is not pushed.
 ```bash
 node --test tests/*.test.mjs
 ```
+
+## License
+
+[MIT](LICENSE)
