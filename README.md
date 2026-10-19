@@ -24,26 +24,22 @@ A single Node.js script, no dependencies, works on Windows, macOS and Linux.
 
 ## Install
 
-From the root of the repository where you want to use it:
+From inside the repository where you want to use it:
 
-1. Download `claude-audit.zip` into the repository root, from the [latest release](https://github.com/miguelmartinezmestre/claude-audit/releases/latest) in the browser or from the terminal (only works while the repository is public):
+```bash
+curl -fsSL https://raw.githubusercontent.com/miguelmartinezmestre/claude-audit/main/install.cjs | node
+```
 
-   ```bash
-   curl -LO https://github.com/miguelmartinezmestre/claude-audit/releases/latest/download/claude-audit.zip
-   ```
+On Windows (PowerShell or cmd) use `curl.exe` instead of `curl`.
 
-   On Windows use `curl.exe` instead of `curl`.
+Without `curl`, or while this repository is private, clone it anywhere and run the installer from your repository:
 
-2. Unzip it and enable the hooks:
+```bash
+git clone https://github.com/miguelmartinezmestre/claude-audit.git ../claude-audit
+node ../claude-audit/install.cjs
+```
 
-   ```bash
-   unzip -n claude-audit.zip   # Windows: tar -xkf claude-audit.zip
-   rm claude-audit.zip         # Windows: del claude-audit.zip
-   git config core.hooksPath .githooks
-   node tools/claude-audit.mjs doctor
-   ```
-
-The zip contains:
+The installer adds these files and sets `git config core.hooksPath .githooks`:
 
 ```
 tools/claude-audit.mjs     the whole tool
@@ -51,12 +47,12 @@ tools/claude-audit.mjs     the whole tool
 .claude/settings.json      Claude Code hooks
 ```
 
-`unzip -n` and `tar -k` never overwrite existing files. If your repository already has one of these files:
+It does not overwrite anything that is yours:
 
-- **`.claude/settings.json`**: copy the entries under `"hooks"` from the zip into yours. `doctor` tells you which ones are missing.
-- **Other Git hooks**: `core.hooksPath` makes Git use `.githooks/` instead of `.git/hooks/`, so move your hooks there. With husky, call the claude-audit hooks from yours instead: `node .githooks/pre-commit`, `node .githooks/prepare-commit-msg "$@"` and `node .githooks/post-commit`.
+- **`.claude/settings.json`**: if it exists, the claude-audit hooks are added to it and the rest is kept.
+- **Other Git hooks**: if `core.hooksPath` already points somewhere else (husky, for example) or `.githooks/` has hooks of its own, they are left untouched. Call the claude-audit hooks from yours: `node .githooks/pre-commit`, `node .githooks/prepare-commit-msg "$@"` and `node .githooks/post-commit`.
 
-When `doctor` shows everything with ✔, commit the files:
+It ends by running `node tools/claude-audit.mjs doctor`. When everything shows ✔, commit the files:
 
 ```bash
 git add tools/claude-audit.mjs .githooks .claude/settings.json
@@ -66,6 +62,8 @@ git commit -m "chore: add claude-audit"
 Restart Claude Code if it was open, so it loads the new hooks.
 
 Everyone who clones the repository needs to run `git config core.hooksPath .githooks` once.
+
+Running the installer again updates claude-audit to the latest release.
 
 ## Usage
 

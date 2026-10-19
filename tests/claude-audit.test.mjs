@@ -211,3 +211,25 @@ test('doctor detects an incomplete setup', () => {
   assert.match(out.stdout, /✔ core\.hooksPath = \.githooks/);
   assert.match(out.stdout, /✘ \.claude\/settings\.json is valid/);
 });
+
+test('installer: installs into a repo with its own Claude settings, merging them, and can run again', () => {
+  const repo = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'claude-audit-install-')));
+  execFileSync('git', ['init', '-q'], { cwd: repo });
+  const ownHook = { matcher: 'Bash', hooks: [{ type: 'command', command: 'echo mine' }] };
+  fs.mkdirSync(path.join(repo, '.claude'));
+  fs.writeFileSync(path.join(repo, '.claude/settings.json'), JSON.stringify({ model: 'opus', hooks: { PreToolUse: [ownHook] } }));
+
+  const install = () => spawnSync('node', [path.join(SRC, 'install.cjs')], { cwd: repo, encoding: 'utf8' });
+  assert.equal(install().status, 0);
+  const second = install();
+  assert.equal(second.status, 0);
+  assert.match(second.stdout, /hooks already present/);
+  assert.match(second.stdout, /✔ logged errors: 0/);
+  assert.doesNotMatch(second.stdout, /✘/);
+
+  const settings = JSON.parse(fs.readFileSync(path.join(repo, '.claude/settings.json'), 'utf8'));
+  assert.equal(settings.model, 'opus');
+  assert.deepEqual(settings.hooks.PreToolUse[0], ownHook);
+  assert.equal(settings.hooks.PreToolUse.length, 3);
+  assert.equal(execFileSync('git', ['config', 'core.hooksPath'], { cwd: repo, encoding: 'utf8' }).trim(), '.githooks');
+});
