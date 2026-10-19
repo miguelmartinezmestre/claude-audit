@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+// claude-audit delegate: the logic lives in tools/claude-audit.mjs (Git runs hooks from the repo root).
+// Valid whether Node treats this file as CommonJS or as ESM.
+process.argv.splice(2, 0, 'git-hook', 'pre-commit');
+import('node:url')
+  .then(url => import(url.pathToFileURL(process.cwd() + '/tools/claude-audit.mjs').href))
+  .catch(e => console.error('claude-audit: could not load tools/claude-audit.mjs:', e.message));
