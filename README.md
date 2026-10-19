@@ -26,15 +26,24 @@ A single Node.js script, no dependencies, works on Windows, macOS and Linux.
 
 From the root of the repository where you want to use it:
 
-```bash
-gh release download v1.0.0 -R miguelmartinezmestre/claude-audit -p 'claude-audit-*.zip'
-unzip -n claude-audit-v1.0.0.zip   # Windows: tar -xkf claude-audit-v1.0.0.zip
-rm claude-audit-v1.0.0.zip
-git config core.hooksPath .githooks
-node tools/claude-audit.mjs doctor
-```
+1. Download `claude-audit.zip` into the repository root, from the [latest release](https://github.com/miguelmartinezmestre/claude-audit/releases/latest) in the browser or from the terminal (only works while the repository is public):
 
-You can also download the zip from the [releases page](https://github.com/miguelmartinezmestre/claude-audit/releases). It contains:
+   ```bash
+   curl -LO https://github.com/miguelmartinezmestre/claude-audit/releases/latest/download/claude-audit.zip
+   ```
+
+   On Windows use `curl.exe` instead of `curl`.
+
+2. Unzip it and enable the hooks:
+
+   ```bash
+   unzip -n claude-audit.zip   # Windows: tar -xkf claude-audit.zip
+   rm claude-audit.zip         # Windows: del claude-audit.zip
+   git config core.hooksPath .githooks
+   node tools/claude-audit.mjs doctor
+   ```
+
+The zip contains:
 
 ```
 tools/claude-audit.mjs     the whole tool
